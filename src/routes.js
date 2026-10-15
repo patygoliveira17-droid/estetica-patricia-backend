@@ -20,7 +20,13 @@ function setupRoutes(app) {
   app.get('/api/connections', authMiddleware, (req, res) => {
     const statuses = {};
     for (const platform of PLATFORMS) {
-      statuses[platform] = store.getStatus(platform);
+      try {
+        statuses[platform] = typeof store.getStatus === 'function'
+          ? store.getStatus(platform)
+          : { connected: false };
+      } catch (e) {
+        statuses[platform] = { connected: false };
+      }
     }
     res.json(statuses);
   });
